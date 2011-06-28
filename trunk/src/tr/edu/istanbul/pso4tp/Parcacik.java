@@ -73,4 +73,12 @@ class Particle {
 			System.arraycopy(current_order, 0, best_order, 0, current_order.length);
 		}
 	}
+	public void mutasyon_uygula(){
+		
+		
+		
+	}
+	public void gelistirilmis_mutasyon_uygula(){
+		
+	}
 }

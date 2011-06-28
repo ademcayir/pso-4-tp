@@ -14,11 +14,17 @@ class Suru {
 	private double start_inertia;
 	private double min_inertia;
 	private int progress_start,progress_amount;
+	private boolean mutasyon;
+	private boolean gelistirilmis_mutasyon;
 	public Suru(){
 		init = false;
 	}
 	public void stop(){
 		stop = true;
+	}
+	public void setMutasyon(boolean mutasyon,boolean gelistirilmis_mutasyon){
+		this.mutasyon = mutasyon;
+		this.gelistirilmis_mutasyon = gelistirilmis_mutasyon;
 	}
 	public void setProgressBounds(int start,int amount){
 		progress_start = start;
@@ -68,6 +74,12 @@ class Suru {
 		for (j = 0;; j++) {
 			for (int i = 0; i < particles.length; i++) {
 				particles[i].nextMove(global_best, w, 2, 2);
+				if (mutasyon){
+					particles[i].mutasyon_uygula();
+				}
+				if (gelistirilmis_mutasyon){
+					particles[i].gelistirilmis_mutasyon_uygula();
+				}
 			}
 			w = w * b;
 			if (w < min_inertia){
@@ -105,13 +117,10 @@ class Suru {
 			int p_order[] = particles[i].getBestOrder();
 			int pbest = particles[i].getBestCost();
 			if (pbest < global_cost ){
-				System.out.println("global best güncellendi!!!!");
 				global_cost = pbest;
 				UI.instance.update(step, System.currentTimeMillis() - baslangic_zamani, global_cost);
 				System.arraycopy(p_x, 0, global_best, 0, p_x.length);
 				System.arraycopy(p_order, 0, global_best_order, 0, p_x.length);
-			} else {
-				
 			}
 		}
 	}
