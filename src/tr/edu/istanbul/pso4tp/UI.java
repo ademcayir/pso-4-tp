@@ -35,6 +35,7 @@ public class UI extends JFrame {
 	private static final double INTERTIA_FACTOR = 0.975;
 	private static final double MIN_INTERTIA = 0.4;
 	private static final double START_INTERTIA = 0.9;
+	
 
 	private JTable problem_view;
 	private JButton yukle; 
@@ -51,6 +52,8 @@ public class UI extends JFrame {
 	private JCheckBox costlari_gizle;
 	private JComboBox iyi_cozumler;
 	private JCheckBox vogel_yaklasim;
+	private JCheckBox classic_mutation;
+	private JCheckBox extreme_classic_mutation;
 	private JLabel sonuc;
 	private JFileChooser fc;
 	private TPProblem current_problem;
@@ -313,6 +316,35 @@ public class UI extends JFrame {
 		g.fill = GridBagConstraints.BOTH;
 		control_panel.add(vogel_yaklasim,g);
 		
+		classic_mutation = new JCheckBox("Klasik Mutasyon");
+		g = new GridBagConstraints();
+		g.gridx = 0;
+		g.gridy = row++;
+		g.fill = GridBagConstraints.BOTH;
+		control_panel.add(classic_mutation,g);
+		
+		extreme_classic_mutation = new JCheckBox("Geliştirilmiş Mutasyon");
+		g = new GridBagConstraints();
+		g.gridx = 0;
+		g.gridy = row++;
+		g.fill = GridBagConstraints.BOTH;
+		control_panel.add(extreme_classic_mutation,g);
+		extreme_classic_mutation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (extreme_classic_mutation.isSelected()){
+					classic_mutation.setSelected(false);
+				}
+			}
+		});
+		classic_mutation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (classic_mutation.isSelected()){
+					extreme_classic_mutation.setSelected(false);
+				}
+			}
+		});
+		
+		
 		
 		g = new GridBagConstraints();
 		g.gridx = 0;
@@ -323,10 +355,7 @@ public class UI extends JFrame {
 		
 		fc.setFileFilter(new FileFilter(){
 			public boolean accept(File f) {
-				if (f != null && f.getName().endsWith(".txt")){
-					return true;
-				}
-				return false;
+				return f.isDirectory() || f.getName().endsWith(".txt");
 			}
 			public String getDescription() {
 				return "TP Problemi";
@@ -377,6 +406,8 @@ public class UI extends JFrame {
 			} else {
 				vogel_sonucu = 0;
 			}
+			final boolean mutation = classic_mutation.isSelected();
+			final boolean ex_mutation = extreme_classic_mutation.isSelected();
 			
 			final int deneme_sayisi = ((ComboItem)this.deneme.getSelectedItem()).i;
 			final int iterasyon_sayisi = ((ComboItem)this.iterasyon.getSelectedItem()).i;
