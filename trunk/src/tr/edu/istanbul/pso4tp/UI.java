@@ -28,14 +28,6 @@ import javax.swing.table.TableModel;
 
 public class UI extends JFrame {
 	
-	private static final int XMAX = 4;
-	private static final int XMIN = -4;
-	private static final int VMAX = 4;
-	private static final int VMIN = 0;
-	private static final double INTERTIA_FACTOR = 0.975;
-	private static final double MIN_INTERTIA = 0.4;
-	private static final double START_INTERTIA = 0.9;
-	
 
 	private JTable problem_view;
 	private JButton yukle; 
@@ -422,7 +414,7 @@ public class UI extends JFrame {
 					for (int i = 0; i < deneme_sayisi && isRunning ; i++) {
 						if (current_problem != null){
 							suru = new Suru();
-							suru.init(current_problem, parcacik_sayisi, XMIN, XMAX, VMIN, VMAX, MIN_INTERTIA, INTERTIA_FACTOR, START_INTERTIA);
+							suru.init(current_problem, parcacik_sayisi, Constants.XMIN, Constants.XMAX, Constants.VMIN, Constants.VMAX, Constants.MIN_INTERTIA, Constants.INTERTIA_FACTOR, Constants.START_INTERTIA);
 							suru.setProgressBounds(progress_current, progress_amount);
 							progress_current += progress_amount;
 							suru.solve(iterasyon_sayisi, zaman_kisiti);

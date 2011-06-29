@@ -74,10 +74,30 @@ class Particle {
 		}
 	}
 	public void mutasyon_uygula(){
-		
-		
-		
+		int size = x.length;
+		int times = (int)((double)size * Constants.MUTASION_FACTOR_SWARN);
+		tp_problem.orderWith(current_order);
+		int current_cost = tp_problem.getTotalCost();
+		int calc_cost = 0;
+		for (int i = 0; i < times; i++) {
+			if (Algorithms.random.nextBoolean()){
+				int from = Math.abs(Algorithms.random.nextInt() % size);
+				int to = Math.abs(Algorithms.random.nextInt() % size);
+				int tmp = current_order[from];
+				current_order[from] = current_order[to];
+				current_order[to] = tmp;
+				tp_problem.orderWith(current_order);
+				calc_cost = tp_problem.getTotalCost();
+				if (calc_cost < current_cost){
+					
+					
+				}
+			} else {
+				
+			}
+		}
 	}
+	private vo
 	public void gelistirilmis_mutasyon_uygula(){
 		
 	}
