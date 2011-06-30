@@ -89,15 +89,51 @@ class Particle {
 				tp_problem.orderWith(current_order);
 				calc_cost = tp_problem.getTotalCost();
 				if (calc_cost < current_cost){
+					int from_ = current_order[from];
+					int to_ = current_order[to];
 					
+					double d = x[from_];
+					x[from_] = x[to_];
+					x[to_] = d;
 					
+					d = v[from_];
+					v[from_] = v[to_];
+					v[to_] = d;
+					
+					int c[] = new int[current_order.length];
+					Algorithms.apply_SPV("", x, c);
+					
+					boolean hata = false;
+					for (int j = 0; j < c.length; j++) {
+						if (c[j] != current_order[j]){
+							System.out.println("hata:"+j);
+							hata = true;
+						}
+					}
+					if (hata){
+						System.out.println(":"+from+","+to+","+from_+","+to_);
+						for (int j = 0; j < c.length; j++) {
+							System.out.print(j+"="+c[j]+",");
+						}
+						System.out.println();
+						for (int j = 0; j < c.length; j++) {
+							System.out.print(j+"="+current_order[j]+",");
+						}
+						System.out.println("\n----------------");
+						
+					}
+					
+					if (calc_cost < best_cost ){
+						best_cost = calc_cost;
+						System.arraycopy(x, 0, best_x, 0, x.length);
+						System.arraycopy(current_order, 0, best_order, 0, current_order.length);
+					}
 				}
 			} else {
 				
 			}
 		}
 	}
-	private vo
 	public void gelistirilmis_mutasyon_uygula(){
 		
 	}
