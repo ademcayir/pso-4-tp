@@ -414,7 +414,9 @@ public class UI extends JFrame {
 					for (int i = 0; i < deneme_sayisi && isRunning ; i++) {
 						if (current_problem != null){
 							suru = new Suru();
+							suru.setMutasyon(mutation, ex_mutation);
 							suru.init(current_problem, parcacik_sayisi, Constants.XMIN, Constants.XMAX, Constants.VMIN, Constants.VMAX, Constants.MIN_INTERTIA, Constants.INTERTIA_FACTOR, Constants.START_INTERTIA);
+							
 							suru.setProgressBounds(progress_current, progress_amount);
 							progress_current += progress_amount;
 							suru.solve(iterasyon_sayisi, zaman_kisiti);
