@@ -33,6 +33,7 @@ public class UI extends JFrame {
 	private JButton yukle; 
 	private JButton olustur; 
 	private JButton kaydet; 
+	private JButton lingo_kaydet; 
 	private JComboBox parcaciksayisi;
 	private JComboBox zaman;
 	private JComboBox deneme;
@@ -136,6 +137,12 @@ public class UI extends JFrame {
 				dosyaya_kaydet();
 			}
 		});
+		lingo_kaydet = new JButton("Lingo Formülü Kaydet");
+		lingo_kaydet.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				lingo_dosyaya_kaydet();
+			}
+		});
 		calistir = new JButton("Çalıştır");
 		calistir.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -207,6 +214,12 @@ public class UI extends JFrame {
 		g.gridy = row++;
 		g.fill = GridBagConstraints.BOTH;
 		control_panel.add(kaydet,g);
+		
+		g = new GridBagConstraints();
+		g.gridx = 0;
+		g.gridy = row++;
+		g.fill = GridBagConstraints.BOTH;
+		control_panel.add(lingo_kaydet,g);
 		
 		g = new GridBagConstraints();
 		g.gridx = 0;
@@ -313,14 +326,14 @@ public class UI extends JFrame {
 		g.gridx = 0;
 		g.gridy = row++;
 		g.fill = GridBagConstraints.BOTH;
-		control_panel.add(classic_mutation,g);
+//		control_panel.add(classic_mutation,g);
 		
 		extreme_classic_mutation = new JCheckBox("Geliştirilmiş Mutasyon");
 		g = new GridBagConstraints();
 		g.gridx = 0;
 		g.gridy = row++;
 		g.fill = GridBagConstraints.BOTH;
-		control_panel.add(extreme_classic_mutation,g);
+//		control_panel.add(extreme_classic_mutation,g);
 		extreme_classic_mutation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (extreme_classic_mutation.isSelected()){
@@ -353,7 +366,7 @@ public class UI extends JFrame {
 				return "TP Problemi";
 			}
 		});
-		setSize(600, 400);
+		setSize(700, 600);
 		sonuc.setOpaque(true);
 		sonuc.setBackground(Color.WHITE);
 		sonuc_guncelle();
@@ -503,6 +516,35 @@ public class UI extends JFrame {
 		current_problem = p;
 		sonuc_guncelle();
 		tablo_guncelle();
+	}
+	private void lingo_dosyaya_kaydet(){
+		if (current_problem == null){
+			return;
+		}
+		fc.showSaveDialog(this);
+		File f = fc.getSelectedFile();
+		if (f != null){
+			FileOutputStream fo = null;
+			try {
+				if (!f.getName().endsWith(".lng")){
+					f = new File(f.getAbsoluteFile()+".lng");
+				}
+				if (!f.exists()){
+					f.createNewFile();
+				}
+				fo = new FileOutputStream(f);
+				String str = current_problem.getLingoFormat();
+				fo.write(str.getBytes());
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					fo.close();
+				} catch (Exception e) {
+				}
+			}
+		}
+		
 	}
 	private void dosyaya_kaydet(){
 		if (current_problem == null){

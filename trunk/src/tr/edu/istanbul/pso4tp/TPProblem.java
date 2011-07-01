@@ -426,6 +426,80 @@ public class TPProblem {
 			}
 		}
 	}
+	public String getLingoFormat(){
+		StringBuffer f = new StringBuffer();
+		f.append("MIN=");
+		for (int i = 0; i < costs.length; i++) {
+			for (int j = 0; j < costs[i].length; j++) {
+				f.append(costs[i][j]);
+				f.append('*');
+				appendX(f, i, j);
+				f.append('+');
+			}
+		}
+		f.delete(f.length()-1, f.length());
+		f.append(";\r\n");
+		for (int i = 0; i < num_of_sources; i++) {
+			for (int j = 0; j < num_of_destinations; j++) {
+				appendX(f, i, j);
+				if (j != num_of_destinations-1){
+					f.append('+');
+				}
+			}			
+			
+			f.append('=');
+			f.append(sources[i]);
+			f.append(";\r\n");
+		}
+		for (int j = 0; j < num_of_destinations; j++) {
+			for (int i = 0; i < num_of_sources; i++) {
+				appendX(f, i, j);
+				if (i != num_of_sources-1){
+					f.append('+');
+				}
+			}
+			f.append('=');
+			f.append(destinations[j]);
+			f.append(";\r\n");
+		}
+		
+		f.append("END");
+		return f.toString();
+	}
+	private void appendX(StringBuffer b,int i,int j){
+		b.append('X');
+		int tmp = num_of_sources;
+		if (tmp < num_of_destinations){
+			tmp = num_of_destinations;
+		}
+		if (tmp < 10){
+			b.append(i);
+			b.append(j);
+		} else if (tmp < 100){
+			if (i < 10){
+				b.append(0);
+			}
+			b.append(i);
+			if (j < 10){
+				b.append(0);
+			}
+			b.append(j);
+		} else {
+			if (i < 10){
+				b.append(00);
+			} else if (i < 100){
+				b.append(0);
+			}
+			b.append(i);
+			
+			if (j < 10){
+				b.append(00);
+			} else if (j < 100){
+				b.append(0);
+			}
+			b.append(j);
+		}
+	}
 	public int getNumOfSources(){
 		return num_of_sources;
 	}
