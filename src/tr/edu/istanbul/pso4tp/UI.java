@@ -341,6 +341,8 @@ public class UI extends JFrame {
 				}
 			}
 		});
+		
+		
 		classic_mutation.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (classic_mutation.isSelected()){
