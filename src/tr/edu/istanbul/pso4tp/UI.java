@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.Enumeration;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -47,6 +49,9 @@ public class UI extends JFrame {
 	private JCheckBox vogel_yaklasim;
 	private JCheckBox classic_mutation;
 	private JCheckBox extreme_classic_mutation;
+	private JButton batch;
+	private boolean batch_calistir;
+	private Object batch_lock = new Object();
 	private JLabel sonuc;
 	private JFileChooser fc;
 	private TPProblem current_problem;
@@ -321,6 +326,18 @@ public class UI extends JFrame {
 		g.fill = GridBagConstraints.BOTH;
 		control_panel.add(vogel_yaklasim,g);
 		
+		batch = new JButton("Toplu Halde Çöz");
+		g = new GridBagConstraints();
+		g.gridx = 0;
+		g.gridy = row++;
+		g.fill = GridBagConstraints.BOTH;
+		control_panel.add(batch,g);
+		batch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				batch_coz();
+			}
+		});
+		
 		classic_mutation = new JCheckBox("Klasik Mutasyon");
 		g = new GridBagConstraints();
 		g.gridx = 0;
@@ -391,6 +408,158 @@ public class UI extends JFrame {
 			tablo_guncelle();
 		}
 	}
+	private void batch_coz(){
+		if (batch_calistir){
+			batch_calistir = false;
+			calistir();
+			return;
+		}
+		batch_calistir = true;
+		batch.setText("Durdur");
+		FileFilter f = fc.getFileFilter();
+		fc.setFileFilter(new FileFilter() {
+			public String getDescription() {
+				return "";
+			}
+			public boolean accept(File f) {
+				return f.isDirectory();
+			}
+		});
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fc.showOpenDialog(this);
+		final File selected = fc.getSelectedFile();
+		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		fc.setFileFilter(f);
+		if (selected != null){
+			final File files[] = selected.listFiles();
+			Thread t = new Thread(){
+				public void run() {
+					
+					File out = new File(selected.getAbsolutePath()+File.separator+"out");
+					delete(out);
+					out.mkdir();
+					File message_file = new File(out+File.separator+"total.txt");
+					
+					FileOutputStream writer = null;
+					try {
+						message_file.createNewFile();
+						writer = new FileOutputStream(message_file);
+					} catch (Exception e) {
+					}
+					
+					write(writer, "# parçacık sayısı = "+((ComboItem)parcaciksayisi.getSelectedItem()).i+"\n");
+					write(writer, "# iterasyon = "+((ComboItem)iterasyon.getSelectedItem()).i+"\n");
+					write(writer, "# deneme = "+((ComboItem)deneme.getSelectedItem()).i+"\n");
+					write(writer, "# vogel = "+vogel_yaklasim.isSelected()+"\n");
+					
+					System.out.println("fff22--:"+files.length);
+					for (int i = 0; i < files.length && batch_calistir ; i++) {
+						if (!files[i].getName().endsWith(".txt")){
+							continue;
+						}
+						System.out.println("fff--:"+files[i]);
+						
+						current_problem = new TPProblem();
+						FileInputStream fi = null;
+						System.out.println("çözülüen("+(i+1)+"/"+(files.length)+") > "+files[i]);
+						batch.setText("Durdur ("+(i+1)+"/"+(files.length)+")");
+						try {
+							fi = new FileInputStream(files[i]);
+							
+							current_problem .load(fi);
+							long ti = System.currentTimeMillis();
+							calistir();
+							synchronized (batch_lock) {
+								batch_lock.wait();
+							}
+							ti = System.currentTimeMillis() - ti;
+							write(writer, files[i].getName());
+							write(writer, "\t"+ti);
+							write(writer, "\t");
+							
+							File f_lingo = new File(out+File.separator+"c_"+files[i].getName().substring(0,files[i].getName().indexOf('.'))+"_lingo.LNG");
+							FileOutputStream fo_l = null;
+							try {
+								f_lingo.delete();
+								f_lingo.createNewFile();
+								fo_l = new FileOutputStream(f_lingo);
+								fo_l.write(current_problem.getLingoFormat().getBytes());
+							} catch (Exception e) {
+								e.printStackTrace();
+							} finally {
+								fo_l.close();
+							}
+							
+							for (int j = 0; j < iyi_cozumler.getItemCount(); j++){
+								if (!(iyi_cozumler.getItemAt(j) instanceof ComboItem)){
+									continue;
+								}
+								System.out.println("iyi_cozumler:"+j);
+								ComboItem c = (ComboItem)iyi_cozumler.getItemAt(j);
+								FileOutputStream fo = null;
+								try {
+									File f = new File(out+File.separator+"c_"+files[i].getName().substring(0,files[i].getName().indexOf('.'))+"_"+j+".txt");
+									
+									System.out.println("f:"+f);
+									
+									f.createNewFile();
+									fo = new FileOutputStream(f);
+									for (int k = 0; k < c.solution.length; k++) {
+										write(fo, c.solution[k]+" ");
+									}
+								} catch (Exception e) {
+									e.printStackTrace();
+								} finally {
+									try {
+										fo.close();
+									} catch (Exception e) {
+									}
+								}
+								write(writer, c.i+"\t");
+							}
+							iyi_cozumler.removeAll();
+							write(writer, "\n");
+						} catch (Exception e) {
+							System.out.println("ex:"+files[i]);
+							e.printStackTrace();
+						} finally {
+							try {
+								fi.close();
+							} catch (Exception e) {
+							}
+						}
+						System.out.println("bitti");
+					}
+					try {
+						writer.close();
+					} catch (Exception e) {
+					}
+					batch.setText("Toplu Halde Çöz");
+					System.out.println("tamamen bitti");
+				}
+			};
+			t.start();
+		}
+	}
+	private void delete(File f){
+		if (f.isDirectory()){
+			File fi[] = f.listFiles();
+			for (int i = 0; i < fi.length; i++) {
+				delete(fi[i]);
+			}
+		}
+		f.delete();
+	}
+	private static void write(OutputStream output,String txt){
+		if (output != null){
+			try {
+				output.write(txt.getBytes());
+			} catch (Exception e) {
+			}
+		}
+		
+	}
+	
 	private void calistir(){
 		if (suru == null){
 			if (current_problem == null){
@@ -467,6 +636,9 @@ public class UI extends JFrame {
 					parcaciksayisi.setEnabled(true);
 					
 					suru = null;
+					synchronized (batch_lock) {
+						batch_lock.notifyAll();
+					}
 				}
 			};
 			t.start();

@@ -17,6 +17,7 @@ public class TPProblem {
 	private int destinations_temp[];
 	private int amounts[][];
 	private int solution[];
+	private String description;
 	
 	public TPProblem(){
 		
@@ -33,6 +34,27 @@ public class TPProblem {
 	}
 	public void save(OutputStream output) throws IOException {
 		String str = generate_represent_string(false);
+		if (description != null && description.length() > 0){
+			int loc0 = 0;
+			int loc1 = description.indexOf('\n');
+			String des = "";
+			while (loc1 != -1){
+				String line = description.substring(loc0,loc1).trim();
+				if (line.length() > 0){
+					des += "# "+line+"\n";
+				}
+				loc0 = loc1+1;
+				loc1 = description.indexOf('\n',loc0);
+			}
+			if (loc0 < description.length()){
+				String line = description.substring(loc0,description.length()).trim();
+				if (line.length() > 0){
+					des += "# "+line+"\n";
+				}
+			}
+			des += "\n";
+			str = des + str;
+		}
 		output.write(str.getBytes());
 	}
 	public void load(InputStream input){
@@ -40,7 +62,19 @@ public class TPProblem {
 		Vector<String[]> lines = new Vector<String[]>();
 		while (scanner.hasNextLine()){
 			String line = scanner.nextLine();
+			
+			
+			if (line.trim().length() == 0){
+				continue;
+			}
 			if (line.startsWith("--")){
+				continue;
+			}
+			if (line.startsWith("#")){
+				if (description == null){
+					description = "";
+				}
+				description += line.substring(1).trim()+"\n";
 				continue;
 			}
 			String pieces[] = parse(line);
@@ -92,6 +126,8 @@ public class TPProblem {
 				costs[i][j] = Integer.parseInt(cost.toString().trim());
 			}
 		}
+		
+		show(true);
 	}
 	private String[] parse(String line){
 		Vector<String> v = new Vector<String>();
@@ -223,6 +259,13 @@ public class TPProblem {
 		return solution;
 	}
 	public void generate(int min_amount,int max_amount,int min_cost,int max_cost){
+		description = "kaynak "+num_of_sources+"\n";
+		description += "hedef "+num_of_destinations+"\n";
+		description += "minimum miktar "+min_amount+"\n";
+		description += "maksimum miktar "+max_amount+"\n";
+		description += "minimum maliyet "+min_cost+"\n";
+		description += "maksimum maliyet "+max_cost+"\n";
+		
 		Random random = new Random();
 		int total = 0;
 		for (int i = 0; i < sources.length; i++) {
@@ -318,6 +361,9 @@ public class TPProblem {
 	
 	public void show(boolean dont_show_zero_amount){
 		String str = generate_represent_string(dont_show_zero_amount);
+		if (description != null && description.length() > 0){
+			System.out.println(description);
+		}
 		System.out.println(str);
 	}
 	private String generate_represent_string(boolean dont_show_zero_amount){
